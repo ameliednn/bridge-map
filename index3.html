@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Carte projets par pays avec tableau</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    crossorigin=""
+  />
+  <style>
+    #map {
+      height: 100vh;
+      width: 100vw;
+    }
+    .popup-content {
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 4px 6px;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
+    .popup-container {
+      position: relative;
+      padding-top: 60px;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+    .logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      height: 50px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const projectData = {
+       "Germany": [
+        { name: "Rader Hichbrücke (A7)", commissioning: "2030", potential: 3500 },
+        { name: "Uttrichhausen viaduct (A7, Hesse)", commissioning: "2029", potential: 3500 },
+        { name: "A40 Rhine bridge (Duisburg)", commissioning: "2028", potential: 3650 },
+        { name: "Sechshelden viaduct (A45)", commissioning: "2030", potential: 3000 },
+        { name: "Mainflingen bridge (A45)", commissioning: "2031", potential: 3000 }
+      ],
+      "Norway": [
+        { name: "Langenuen Bridge (Hordfast)", commissioning: "2030", potential: 3150 }
+      ],
+      "Croatia": [
+        { name: "New Krk bridge", commissioning: "2029", potential: 3000 },
+        { name: "New Split Bridge / Bridge over Kaštela Bay", commissioning: "2029", potential: 3000 },
+        { name: "Western Jarun Bridge", commissioning: "2028", potential: 3650 },
+        { name: "Eastern Jarun Bridge", commissioning: "2031", potential: 2500 },
+        { name: "Savska Opatovinova Bridge", commissioning: "2035", potential: 2500 }
+      ],
+      "Belgium": [
+        { name: "Vilvorde viaduct", commissioning: "2031", potential: 3500 }
+      ],
+      "France": [
+        { name: "Paris metro line 17 viaduct", commissioning: "2029", potential: 5150 }
+      ],
+      "Austria": [
+        { name: "Lueg Bridge", commissioning: "2030", potential: 3000 }
+      ],
+      "Bulgaria": [
+        { name: "Third Danube bridge (Roussé–Giurgiu)", commissioning: "2035", potential: 3000 },
+        { name: "Viaducts on the Roussé-Veliko Tarnovo freeway", commissioning: "2029", potential: 3000 },
+        { name: "Railway viaducts on the Vidin-Sofia line", commissioning: "2027-2033", potential: 3000 }
+      ],
+      "Netherlands": [
+        { name: "Suurhoffbrug (A15, Rotterdam)", commissioning: "2030", potential: 3150 },
+        { name: "Oostbrug (Amsterdam)", commissioning: "2034", potential: 3000 },
+        { name: "A27 Everdingen-Hooipolder", commissioning: "2029-2031", potential: 3000 }
+      ],
+      "Spain": [
+        { name: "Viaduc SE-40 sur SE-40 viaduct over the Guadalquivir (Seville)", commissioning: "2030", potential: 3650 },
+        { name: "Viaduct over the Peña embankment (Aragon)", commissioning: "2027", potential: 3000 }
+      ],
+      "UK": [
+        { name: "Colne Valley Viaduct", commissioning: "2029-2033", potential: 3150 },
+        { name: "M6 Lune Gorge Bridge", commissioning: "2029", potential: 3000 }
+      ],
+      "Czechia": [
+        { name: "Bridges on the D3 Motorway (Section: Kaplice-nádraží – Nažidla)", commissioning: "2027", potential: 3000 }
+      ],
+      "Estonia": [
+        { name: "Rail Baltica Viaduct, comté de Rapla", commissioning: "2028", potential: 3000 },
+        { name: "Viaduct over the Vaskjala-Ülemiste canal (Rail Baltica, Soodevahe-Kangru)", commissioning: "2028", potential: 3500 }
+      ],
+      "Italy": [
+        { name: "Strait of Messina Bridge", commissioning: "2032", potential: 3650 },
+        { name: "Pedemontana Lombarda Viaduct", commissioning: "2030", potential: 3650 },
+        { name: "Gronda di Genova", commissioning: "2034", potential: 21500 }
+      ],
+      "Ireland": [
+        { name: "Narrow Water Bridge", commissioning: "2028", potential: 3150 },
+        { name: "N5 Ballaghaderreen to Scramoge Road Project (County Roscommon, Ireland) : Road bridges", commissioning: "2027", potential: 3000 }
+      ],
+      "Latvia": [
+        { name: "Phase 4 of the Riga South Bridge (Jāņa Čakstes gatve)", commissioning: "2027", potential: 3650 },
+        { name: "Rail Baltica's combined road-rail bridge over the Daugava (near Iecava)", commissioning: "2028", potential: 3500 }
+      ],
+      "Luxembourg": [
+        { name: "CFL railway bridge over the A3 (Luxembourg-Bettembourg)", commissioning: "2028", potential: 3150 },
+        { name: "Footbridge and elevator Cents-Neudorf-Weimershof", commissioning: "2028", potential: 3150 }
+      ],
+      "Slovakia": [
+        { name: "D1 Turany–Hubová", commissioning: "2032", potential: 3000 }
+      ],
+      "Greece": [
+        { name: "Kipi–Ipsala Friendship Bridge", commissioning: "2029", potential: 3650 }
+      ],
+      "Hungary": [
+        { name: "Mohács Bridge", commissioning: "2028", potential: 3150 }
+      ]
+    };
+
+    var countryCenters = {
+      "Germany": [51.1657, 10.4515],
+      "Norway": [60.472, 8.4689],
+      "Croatia": [45.1, 15.2],
+      "Belgium": [50.8503, 4.3517],
+      "France": [46.603354, 1.888334],
+      "Austria": [47.5162, 14.5501],
+      "Bulgaria": [42.7339, 25.4858],
+      "Netherlands": [52.1326, 5.2913],
+      "Spain": [40.4637, -3.7492],
+      "UK": [55.3781, -3.4360],
+      "Czechia": [49.8175, 15.4730],
+      "Estonia": [58.5953, 25.0136],
+      "Italy": [41.8719, 12.5674],
+      "Ireland": [53.1424, -7.6921],
+      "Latvia": [56.8796, 24.6032],
+      "Luxembourg": [49.8153, 6.1296],
+      "Slovakia": [48.6690, 19.6990],
+      "Greece": [39.0742, 21.8243],
+      "Hungary": [47.1625, 19.5033]
+    };
+
+
+    // Définir des icônes personnalisés
+    const iconRed = L.icon({
+      iconUrl: 'images/markers/marker-red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    const iconBlue = L.icon({
+      iconUrl: 'images/markers/marker-blue.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    const iconGreen = L.icon({
+      iconUrl: 'images/markers/marker-green.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    const map = L.map('map').setView([54, 10], 4);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    for (const country in projectData) {
+      if (countryCenters[country]) {
+        const latlng = countryCenters[country];
+        const projects = projectData[country];
+
+        let tableRows = projects.map(p =>
+          `<tr>
+            <td>${p.name}</td>
+            <td>${p.commissioning}</td>
+            <td>${p.potential}</td>
+          </tr>`
+        ).join("");
+
+        const popupContent = `
+          <div class="popup-content">
+            <strong>${country}</strong>
+            <table>
+              <thead>
+                <tr>
+                  <th>Projet</th>
+                  <th>Commissioning</th>
+                  <th>Potential K €</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // Choisir une icône différente pour chaque pays (exemple)
+        let icon = iconRed;
+        if (country === "Germany") icon = iconBlue;
+        if (country === "Norway") icon = iconGreen;
+        if (country === "Croatia") icon = iconRed;
+        if (country === "Belgium") icon = iconBlue;
+        if (country === "France") icon = iconGreen;
+        if (country === "Austria") icon = iconBlue;
+        if (country === "Bulgaria") icon = iconRed;
+        if (country === "Netherlands") icon = iconBlue;
+        if (country === "Spain") icon = iconBlue;
+        if (country === "UK") icon = iconBlue;
+        if (country === "Czechia") icon = iconRed;
+        if (country === "Estonia") icon = iconBlue;
+        if (country === "Italy") icon = iconBlue;
+        if (country === "Ireland") icon = iconRed;
+        if (country === "Latvia") icon = iconGreen;        
+	if (country === "Luxembourg") icon = iconBlue;
+	if (country === "Slovakia") icon = iconBlue;
+	if (country === "Greece") icon = iconRed;
+	if (country === "Hungary") icon = iconGreen;
+
+        L.marker(latlng, { icon }).addTo(map).bindPopup(popupContent);
+      }
+    }
+    var legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'legend');
+  div.innerHTML += "<strong>Légende</strong><br><br>";
+  div.innerHTML += '<i style="background:#007bff; width: 12px; height: 12px; display:inline-block; border-radius: 50%; margin-right: 6px;"></i> +=3 projects<br>';
+  div.innerHTML += '<i style="background:#28a745; width: 12px; height: 12px; display:inline-block; border-radius: 50%; margin-right: 6px;"></i> 2 projects<br>';
+  div.innerHTML += '<i style="background:#fd7e14; width: 12px; height: 12px; display:inline-block; border-radius: 50%; margin-right: 6px;"></i> one or less<br>';
+  return div;
+};
+
+legend.addTo(map);
+    legend.addTo(map);
+  </script>
+</body>
+</html>
+
+

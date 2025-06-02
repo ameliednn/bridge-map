@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Carte projets par pays avec tableau</title>
@@ -30,19 +30,28 @@
     th {
       background-color: #eee;
     }
+    .popup-container {
+      position: relative;
+      padding-top: 60px;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+    .logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      height: 50px;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
   <script>
-    // Tous les projets ont commissioning = "2030" et potential = 3500
-    var projectData = {
-      "Germany": [
+    const projectData = {
+       "Germany": [
         { name: "Rader Hichbrücke (A7)", commissioning: "2030", potential: 3500 },
         { name: "Uttrichhausen viaduct (A7, Hesse)", commissioning: "2029", potential: 3500 },
         { name: "A40 Rhine bridge (Duisburg)", commissioning: "2028", potential: 3650 },
@@ -143,7 +152,36 @@
       "Hungary": [47.1625, 19.5033]
     };
 
-    var map = L.map('map').setView([54, 10], 4);
+
+    // Définir des icônes personnalisés
+    const iconRed = L.icon({
+      iconUrl: 'images/markers/marker-red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    const iconBlue = L.icon({
+      iconUrl: 'images/markers/marker-blue.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    const iconGreen = L.icon({
+      iconUrl: 'images/markers/marker-green.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    const map = L.map('map').setView([54, 10], 4);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
@@ -158,7 +196,7 @@
           `<tr>
             <td>${p.name}</td>
             <td>${p.commissioning}</td>
-            <td>${p.potential} </td>
+            <td>${p.potential}</td>
           </tr>`
         ).join("");
 
@@ -180,14 +218,44 @@
           </div>
         `;
 
-        L.marker(latlng)
-          .addTo(map)
-          .bindPopup(popupContent);
-      } else {
-        console.warn(`Pas de coordonnée pour ${country}`);
+        // Choisir une icône différente pour chaque pays (exemple)
+        let icon = iconRed;
+        if (country === "Germany") icon = iconBlue;
+        if (country === "Norway") icon = iconGreen;
+        if (country === "Croatia") icon = iconRed;
+        if (country === "Belgium") icon = iconBlue;
+        if (country === "France") icon = iconGreen;
+        if (country === "Austria") icon = iconBlue;
+        if (country === "Bulgaria") icon = iconRed;
+        if (country === "Netherlands") icon = iconBlue;
+        if (country === "Spain") icon = iconBlue;
+        if (country === "UK") icon = iconBlue;
+        if (country === "Czechia") icon = iconRed;
+        if (country === "Estonia") icon = iconBlue;
+        if (country === "Italy") icon = iconBlue;
+        if (country === "Ireland") icon = iconRed;
+        if (country === "Latvia") icon = iconGreen;        
+	if (country === "Luxembourg") icon = iconBlue;
+	if (country === "Slovakia") icon = iconBlue;
+	if (country === "Greece") icon = iconRed;
+	if (country === "Hungary") icon = iconGreen;
+
+        L.marker(latlng, { icon }).addTo(map).bindPopup(popupContent);
       }
     }
+    var legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'legend');
+  div.innerHTML += "<strong>Légende</strong><br><br>";
+  div.innerHTML += '<i style="background:#007bff; width: 12px; height: 12px; display:inline-block; border-radius: 50%; margin-right: 6px;"></i> +=3 projects<br>';
+  div.innerHTML += '<i style="background:#28a745; width: 12px; height: 12px; display:inline-block; border-radius: 50%; margin-right: 6px;"></i> 2 projects<br>';
+  div.innerHTML += '<i style="background:#fd7e14; width: 12px; height: 12px; display:inline-block; border-radius: 50%; margin-right: 6px;"></i> one or less<br>';
+  return div;
+};
+
+legend.addTo(map);
+    legend.addTo(map);
   </script>
 </body>
 </html>
-
